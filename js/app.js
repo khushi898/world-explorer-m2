@@ -41,9 +41,16 @@ async function init(forceRefresh=false) {
         showError(app,"Could not load countries. Check your internet and try again.",init);
     }
 }
+function debounce(fn delay){
+    let timer;
+    return ()=>{
+        clearTimeout(timer);
+        timer=setTimeout(fn,delay);
+    };
+}
  
 
-searchInput.addEventListener("input", applyFilters);
+searchInput.addEventListener("input", debounce(applyFilters, 300));
 regionSelect.addEventListener("change", applyFilters);
 sortSelect.addEventListener("change", applyFilters);
 refreshButton.addEventListener("click",()=>init(true));
