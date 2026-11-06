@@ -1,15 +1,50 @@
 import { getAllCountries } from "./api.js";
-import { renderCountries, showError } from "./ui.js";
+import { renderCountries,showLoading, showError,fillRegionOptions } from "./ui.js";
 
 const app=document.getElementById("app");
+const searchInput=document.getElementById("search");
+const regionSelect=document.getElementById("region");
+const sortSelect=document.getElementById("sort");
 
-async function init(){
-    try{
-        const countries=await getAllCountries();
-        renderCountries(app, countries);
-    }catch(error){
-        showError(app,"Could not load countries. Try again",init);
-        
-    }
-    }
-    init();
+let allCountries=[];
+
+function applyFilters(){
+    const searchText=searchInput.value.trim().toLowerCase();
+    const region =regionSelect.value;
+    const sortBy=sortSelect.value;
+
+    let result=allCountries.filter((country)=>country.names.common.toLowerCase().includes(searchText)
+);
+if(region !=="all"){
+    result=result.filter((country)=>country.region===region);
+} 
+
+
+result.sort((a, b) => {
+    if (sortBy === "population-desc") return (b.population || 0) - (a.population || 0);
+    if (sortBy === "population-asc") return (a.population || 0) - (b.population || 0);
+    if (sortBy === "area-desc") return (b.area?.kilometers || 0) - (a.area?.kilometers || 0);
+    return a.names.common.localeCompare(b.names.common);
+  });
+
+  renderCountries(app, result);
+}
+
+async function init() {
+  showLoading(app);
+  try {
+    allCountries = await getAllCountries();
+    fillRegionOptions(regionSelect, allCountries);
+    applyFilters();
+  } catch (error) {
+    showError(app, "Could not load countries. Check your internet and try again.", init);
+  }
+}
+
+searchInput.addEventListener("input", applyFilters);
+regionSelect.addEventListener("change", applyFilters);
+sortSelect.addEventListener("change", applyFilters);
+
+init();
+
+
