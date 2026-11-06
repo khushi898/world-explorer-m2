@@ -1,5 +1,5 @@
 import { getAllCountries } from "./api.js";
-import { renderCountries } from "./ui.js";
+import { renderCountries, showError } from "./ui.js";
 
 const app=document.getElementById("app");
 
@@ -8,7 +8,8 @@ async function init(){
         const countries=await getAllCountries();
         renderCountries(app, countries);
     }catch(error){
-        console.log("Error:", error.message);
+        showError(app,"Could not load countries. Try again",init);
+        
     }
     }
     init();

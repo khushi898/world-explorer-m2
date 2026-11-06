@@ -40,3 +40,28 @@ export function renderCountries(container,countries){
     });
     container.appendChild(grid);
 }
+
+export function showLoading(container){
+    container.innerHTML="";
+    const message=document.createElement('p');
+    message.className="text-center text-gray-500 py-20 animate-pulse";
+    message.textContent="Loading countries...";
+    container.appendChild(message);
+}
+
+export function showError(container,message){
+    container.innerHTML="";
+    const box=document.createElement('div');
+    box.className="text-center py-20";
+
+    const text=document.createElement('p');
+    text.className="text-red-600 font-semibold mb-4";
+    text.textContent=message;
+
+    const button=document.createElement('button');
+    button.className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600";
+    button.textContent="Retry";
+    button.addEventListener("click",onRetry);
+    box.append(text,button);
+    container.appendChild(box);
+}
