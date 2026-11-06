@@ -5,6 +5,7 @@ const app=document.getElementById("app");
 const searchInput=document.getElementById("search");
 const regionSelect=document.getElementById("region");
 const sortSelect=document.getElementById("sort");
+const refreshButton=document.getElementById("refresh");
 
 let allCountries=[];
 
@@ -30,20 +31,22 @@ result.sort((a, b) => {
   renderCountries(app, result);
 }
 
-async function init() {
-  showLoading(app);
-  try {
-    allCountries = await getAllCountries();
-    fillRegionOptions(regionSelect, allCountries);
-    applyFilters();
-  } catch (error) {
-    showError(app, "Could not load countries. Check your internet and try again.", init);
-  }
+async function init(forceRefresh=false) {
+    showLoading(app);
+    try{
+        allCountries=await getAllCountries(forceRefresh);
+        fillRegionOptions(regionSelect,allCountries);
+        applyFilters();
+    }catch(error){
+        showError(app,"Could not load countries. Check your internet and try again.",init);
+    }
 }
+ 
 
 searchInput.addEventListener("input", applyFilters);
 regionSelect.addEventListener("change", applyFilters);
 sortSelect.addEventListener("change", applyFilters);
+refreshButton.addEventListener("click",()=>init(true));
 
 init();
 
