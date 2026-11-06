@@ -65,3 +65,15 @@ export function showError(container,message){
     box.append(text,button);
     container.appendChild(box);
 }
+
+export function fillRegionOptions(select,countries){
+    select.length=1;
+    const regions=[...new Set(countries.map((country)=>country.region))].sort();
+
+    regions.forEach((region)=>{
+        const option=document.createElement('option');
+        option.value=region;
+        option.textContent=region;
+        select.appendChild(option);
+    });
+}
