@@ -1,11 +1,13 @@
 import { getAllCountries } from "./api.js";
-import { renderCountries,showLoading, showError,fillRegionOptions,renderDetail } from "./ui.js";
+import { renderCountries,showLoading, showError,fillRegionOptions,renderDetail} from "./ui.js";
+import { toggleFavorite,isFavorite } from "./storage.js";
 
 const app=document.getElementById("app");
 const searchInput=document.getElementById("search");
 const regionSelect=document.getElementById("region");
 const sortSelect=document.getElementById("sort");
 const refreshButton=document.getElementById("refresh");
+const favOnly=document.getElementById("fav-only");
 
 let allCountries=[];
 
@@ -19,6 +21,9 @@ function applyFilters(){
 if(region !=="all"){
     result=result.filter((country)=>country.region===region);
 } 
+if(favOnly.checked){
+    result=result.filter((country)=>isFavorite(country.codes.alpha_3));
+}
 
 
 result.sort((a, b) => {
@@ -54,20 +59,28 @@ searchInput.addEventListener("input", debounce(applyFilters, 300));
 regionSelect.addEventListener("change", applyFilters);
 sortSelect.addEventListener("change", applyFilters);
 refreshButton.addEventListener("click",()=>init(true));
-app.addEventListener("click",(event)=>{
-    if(event.target.closest("[data-action='back']")){
-        applyFilters();
-        return;
-    }
-    const clicked=event.target.closest("[data-code]");
-    if(!clicked) return;
+favOnly.addEventListener("change",applyFilters);
+app.addEventListener("click", (event) => {
+  const favClicked = event.target.closest("[data-fav]");
+  if (favClicked) {
+    toggleFavorite(favClicked.dataset.fav);
+    applyFilters();
+    return;
+  }
 
-    const country=allCountries.find((c)=>c.codes.alpha_3 === clicked.dataset.code);
-    if(country){
-       
-        renderDetail(app,country,allCountries);
-        window.scrollTo(0,0);
-    }
+  if (event.target.closest("[data-action='back']")) {
+    applyFilters();
+    return;
+  }
+
+  const clicked = event.target.closest("[data-code]");
+  if (!clicked) return;
+
+  const country = allCountries.find((c) => c.codes.alpha_3 === clicked.dataset.code);
+  if (country) {
+    renderDetail(app, country, allCountries);
+    window.scrollTo(0, 0);
+  }
 });
 
 init();

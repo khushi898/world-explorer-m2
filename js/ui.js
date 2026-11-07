@@ -1,6 +1,7 @@
+import { isFavorite } from "./storage.js";
 function createCard(country){
     const card =document.createElement('div');
-    card.className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden cursor-pointer";
+    card.className="relative bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden";
     card.dataset.code=country.codes.alpha_3;
     const flag=document.createElement("img");
     flag.src=country.flag.url_png;
@@ -27,7 +28,14 @@ function createCard(country){
    capital.textContent=`Capital: ${capitalName}`;
 
    body.append(name,population,capital);
-   card.append(flag,body);
+  
+   const favButton=document.createElement("button");
+   favButton.dataset.fav=country.codes.alpha_3;
+   favButton.className="absolute top-2 right-2 bg-white rounded-full w-9 h-9 shadow text-xl";
+   favButton.setAttribute("aria-label","Toggle favorite");
+   favButton.textContent=isFavorite(country.codes.alpha_3)?"♥️":"♡";
+   favButton.style.color=isFavorite(country.codes.alpha_3)?"red":"gray";
+    card.append(flag,body,favButton);
    return card;
 }
 
@@ -78,29 +86,30 @@ export function fillRegionOptions(select,countries){
         select.appendChild(option);
     });
 }
-
-function addInfo(parent,label,value){
-    const line=document.createElement('p');
-    line.className="mb-1";
-    line.textContent=`${label}: ${value}`;
-    line.textContent=`${label}:${value}`;
-    parent.appendChild(line);
+function addInfo(parent, label, value) {
+  const line = document.createElement("p");
+  line.className = "mb-1";
+  line.textContent = `${label}: ${value}`;
+  parent.appendChild(line);
 }
-export function renderDetail(container,country,allCountries){
-    container.innerHTML="";
 
-    const wrapper=document.createElement('div');
-    wrapper.className="max-w-3xl mx-auto bg-white rounded-lg shadow p-6";
-    const back=document.createElement('button');
-    back.dataset.action="back";
-    back.className="mb-4 text-blue-600 hover:underline";
-    back.textContent="<- Back to all countries";
 
-    const flag=document.createElement("img");
-    flag.src=country.flag.url_png;
-    flag.alt=`Flag of ${country.names.common}`;
-    flag.className="w-full max-h-64 object-contain mb-4";
 
+export function renderDetail(container, country, allCountries) {
+  container.innerHTML = "";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "max-w-3xl mx-auto bg-white rounded-lg shadow p-6";
+
+  const back = document.createElement("button");
+  back.dataset.action = "back";
+  back.className = "mb-4 text-blue-600 hover:underline";
+  back.textContent = "← Back to all countries";
+
+  const flag = document.createElement("img");
+  flag.src = country.flag.url_png;
+  flag.alt = `Flag of ${country.names.common}`;
+  flag.className = "w-full max-h-64 object-contain mb-4";
 
   const title = document.createElement("h2");
   title.className = "text-2xl font-bold";
@@ -112,26 +121,30 @@ export function renderDetail(container,country,allCountries){
 
   const info = document.createElement("div");
   info.className = "mb-4";
-  const capitalName = country.capitals.length > 0 ? country.capitals[0].name : "N/A";
+
+  const capitals=country.capitals ||[];
+  const capitalName = capitals.length > 0 ? capitals[0].name : "N/A";
   addInfo(info, "Region", `${country.region} — ${country.subregion || "N/A"}`);
   addInfo(info, "Capital", capitalName);
   addInfo(info, "Population", (country.population || 0).toLocaleString());
   addInfo(info, "Area", `${(country.area?.kilometers || 0).toLocaleString()} km²`);
 
-  const currencyText=country.currencies.length>0
+  const currencies=country.currencies || [];
+  const currencyText = currencies.length > 0
+    ? currencies.map((cur) => `${cur.name} (${cur.symbol})`).join(", ")
+    : "N/A";
+  addInfo(info, "Currency", currencyText);
 
-  ? country.currencies.map((cur)=>`${cur.name}(${cur.symbol})`).join(", ")
-  :"N/A";
-  addInfo(info,"Currency",currencyText);
-  const languageText=country.languages.length>0
-  ?country.languages.map((lang)=>lang.name).join(", ")
-  :"N/A";
-  addInfo(info,"Languages",languageText);
+  const languages=country.languages || [];
+  const languageText = languages.length > 0
+    ?languages.map((lang) => lang.name).join(", ")
+    : "N/A";
+  addInfo(info, "Languages", languageText);
 
   const map = document.createElement("a");
-  map.href = country.links.google_maps;
+  map.href = country.links?.google_maps||"#";
   map.target = "_blank";
-  map.rel="noopener noreferrer";
+  map.rel = "noopener noreferrer";
   map.className = "inline-block mb-4 text-blue-600 hover:underline";
   map.textContent = "View on Google Maps →";
 
@@ -142,10 +155,11 @@ export function renderDetail(container,country,allCountries){
   const chips = document.createElement("div");
   chips.className = "flex flex-wrap gap-2";
 
+  const borders=country.borders ||[];
   if (country.borders.length === 0) {
     chips.textContent = "No land borders";
   } else {
-    country.borders.forEach((code) => {
+    borders.forEach((code) => {
       const neighbour = allCountries.find((c) => c.codes.alpha_3 === code);
       if (!neighbour) return;
 
