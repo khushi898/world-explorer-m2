@@ -82,6 +82,7 @@ export function fillRegionOptions(select,countries){
 function addInfo(parent,label,value){
     const line=document.createElement('p');
     line.className="mb-1";
+    line.textContent=`${label}: ${value}`;
     line.textContent=`${label}:${value}`;
     parent.appendChild(line);
 }
@@ -117,9 +118,20 @@ export function renderDetail(container,country,allCountries){
   addInfo(info, "Population", (country.population || 0).toLocaleString());
   addInfo(info, "Area", `${(country.area?.kilometers || 0).toLocaleString()} km²`);
 
+  const currencyText=country.currencies.length>0
+
+  ? country.currencies.map((cur)=>`${cur.name}(${cur.symbol})`).join(", ")
+  :"N/A";
+  addInfo(info,"Currency",currencyText);
+  const languageText=country.languages.length>0
+  ?country.languages.map((lang)=>lang.name).join(", ")
+  :"N/A";
+  addInfo(info,"Languages",languageText);
+
   const map = document.createElement("a");
   map.href = country.links.google_maps;
   map.target = "_blank";
+  map.rel="noopener noreferrer";
   map.className = "inline-block mb-4 text-blue-600 hover:underline";
   map.textContent = "View on Google Maps →";
 

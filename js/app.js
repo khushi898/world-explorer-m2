@@ -64,6 +64,7 @@ app.addEventListener("click",(event)=>{
 
     const country=allCountries.find((c)=>c.codes.alpha_3 === clicked.dataset.code);
     if(country){
+       
         renderDetail(app,country,allCountries);
         window.scrollTo(0,0);
     }
