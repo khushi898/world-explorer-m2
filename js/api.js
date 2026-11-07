@@ -1,7 +1,7 @@
 const BASE_URL="https://api.restcountries.com/countries/v5";
 const API_KEY="rc_live_bb7bde7bbbf54442859236c19d7d1d8a";
-const FIELDS="names.common,flag.url_png,population,capitals,region,area.kilometers,codes.alpha_3";
-const CACHE_KEY="countries";
+const FIELDS="names.common,names.official,flag.url_png,population,capitals,region,subregion,area.kilometers,codes.alpha_3,borders,currencies,languages,links.google_maps";
+const CACHE_KEY="countries-v2";
 export async function getAllCountries(forceRefresh=false){
 
     const cached=sessionStorage.getItem(CACHE_KEY);

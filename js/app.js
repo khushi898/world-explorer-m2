@@ -1,5 +1,5 @@
 import { getAllCountries } from "./api.js";
-import { renderCountries,showLoading, showError,fillRegionOptions } from "./ui.js";
+import { renderCountries,showLoading, showError,fillRegionOptions,renderDetail } from "./ui.js";
 
 const app=document.getElementById("app");
 const searchInput=document.getElementById("search");
@@ -41,7 +41,7 @@ async function init(forceRefresh=false) {
         showError(app,"Could not load countries. Check your internet and try again.",init);
     }
 }
-function debounce(fn delay){
+function debounce(fn ,delay){
     let timer;
     return ()=>{
         clearTimeout(timer);
@@ -54,6 +54,21 @@ searchInput.addEventListener("input", debounce(applyFilters, 300));
 regionSelect.addEventListener("change", applyFilters);
 sortSelect.addEventListener("change", applyFilters);
 refreshButton.addEventListener("click",()=>init(true));
+app.addEventListener("click",(event)=>{
+    if(event.target.closest("[data-action='back']")){
+        applyFilters();
+        return;
+    }
+    const clicked=event.target.closest("[data-code]");
+    if(!clicked) return;
+
+    const country=allCountries.find((c)=>c.codes.alpha_3 === clicked.dataset.code);
+    if(country){
+       
+        renderDetail(app,country,allCountries);
+        window.scrollTo(0,0);
+    }
+});
 
 init();
 
