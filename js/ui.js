@@ -1,6 +1,8 @@
+import { isFavorite } from "./storage.js";
 function createCard(country){
     const card =document.createElement('div');
-    card.className="bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden";
+    card.className="relative bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden";
+    card.dataset.code=country.codes.alpha_3;
     const flag=document.createElement("img");
     flag.src=country.flag.url_png;
     flag.alt=`Flag of ${country.names.common}`;
@@ -26,7 +28,14 @@ function createCard(country){
    capital.textContent=`Capital: ${capitalName}`;
 
    body.append(name,population,capital);
-   card.append(flag,body);
+  
+   const favButton=document.createElement("button");
+   favButton.dataset.fav=country.codes.alpha_3;
+   favButton.className="absolute top-2 right-2 bg-white rounded-full w-9 h-9 shadow text-xl";
+   favButton.setAttribute("aria-label","Toggle favorite");
+   favButton.textContent=isFavorite(country.codes.alpha_3)?"♥️":"♡";
+   favButton.style.color=isFavorite(country.codes.alpha_3)?"red":"gray";
+    card.append(flag,body,favButton);
    return card;
 }
 
@@ -49,7 +58,7 @@ export function showLoading(container){
     container.appendChild(message);
 }
 
-export function showError(container,message){
+export function showError(container,message,onRetry){
     container.innerHTML="";
     const box=document.createElement('div');
     box.className="text-center py-20";
@@ -76,4 +85,92 @@ export function fillRegionOptions(select,countries){
         option.textContent=region;
         select.appendChild(option);
     });
+}
+function addInfo(parent, label, value) {
+  const line = document.createElement("p");
+  line.className = "mb-1";
+  line.textContent = `${label}: ${value}`;
+  parent.appendChild(line);
+}
+
+
+
+export function renderDetail(container, country, allCountries) {
+  container.innerHTML = "";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "max-w-3xl mx-auto bg-white rounded-lg shadow p-6";
+
+  const back = document.createElement("button");
+  back.dataset.action = "back";
+  back.className = "mb-4 text-blue-600 hover:underline";
+  back.textContent = "← Back to all countries";
+
+  const flag = document.createElement("img");
+  flag.src = country.flag.url_png;
+  flag.alt = `Flag of ${country.names.common}`;
+  flag.className = "w-full max-h-64 object-contain mb-4";
+
+  const title = document.createElement("h2");
+  title.className = "text-2xl font-bold";
+  title.textContent = country.names.common;
+
+  const official = document.createElement("p");
+  official.className = "text-gray-500 mb-4";
+  official.textContent = country.names.official;
+
+  const info = document.createElement("div");
+  info.className = "mb-4";
+
+  const capitals=country.capitals ||[];
+  const capitalName = capitals.length > 0 ? capitals[0].name : "N/A";
+  addInfo(info, "Region", `${country.region} — ${country.subregion || "N/A"}`);
+  addInfo(info, "Capital", capitalName);
+  addInfo(info, "Population", (country.population || 0).toLocaleString());
+  addInfo(info, "Area", `${(country.area?.kilometers || 0).toLocaleString()} km²`);
+
+  const currencies=country.currencies || [];
+  const currencyText = currencies.length > 0
+    ? currencies.map((cur) => `${cur.name} (${cur.symbol})`).join(", ")
+    : "N/A";
+  addInfo(info, "Currency", currencyText);
+
+  const languages=country.languages || [];
+  const languageText = languages.length > 0
+    ?languages.map((lang) => lang.name).join(", ")
+    : "N/A";
+  addInfo(info, "Languages", languageText);
+
+  const map = document.createElement("a");
+  map.href = country.links?.google_maps||"#";
+  map.target = "_blank";
+  map.rel = "noopener noreferrer";
+  map.className = "inline-block mb-4 text-blue-600 hover:underline";
+  map.textContent = "View on Google Maps →";
+
+  const bordersTitle = document.createElement("h3");
+  bordersTitle.className = "font-semibold mb-2";
+  bordersTitle.textContent = "Border countries";
+
+  const chips = document.createElement("div");
+  chips.className = "flex flex-wrap gap-2";
+
+  const borders=country.borders ||[];
+  if (country.borders.length === 0) {
+    chips.textContent = "No land borders";
+  } else {
+    borders.forEach((code) => {
+      const neighbour = allCountries.find((c) => c.codes.alpha_3 === code);
+      if (!neighbour) return;
+
+      const chip = document.createElement("button");
+      chip.dataset.code = code;
+      chip.className = "px-3 py-1 bg-gray-200 rounded-full hover:bg-blue-100 active:bg-blue-200";
+      chip.textContent = neighbour.names.common;
+      chips.appendChild(chip);
+    });
+  }
+
+  wrapper.append(back, flag, title, official, info, map, bordersTitle, chips);
+  container.appendChild(wrapper);
 }
