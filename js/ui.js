@@ -1,5 +1,5 @@
 import { isFavorite } from "./storage.js";
-function createCard(country){
+function createCard(country,compareList){
     const card =document.createElement('div');
     card.className="relative bg-white rounded-lg shadow hover:shadow-lg transition overflow-hidden";
     card.dataset.code=country.codes.alpha_3;
@@ -35,17 +35,24 @@ function createCard(country){
    favButton.setAttribute("aria-label","Toggle favorite");
    favButton.textContent=isFavorite(country.codes.alpha_3)?"♥️":"♡";
    favButton.style.color=isFavorite(country.codes.alpha_3)?"red":"gray";
+   const code=country.codes.alpha_3;
+   const compareButton=document.createElement("button");
+   compareButton.dataset.compare=code;
+   compareButton.className="mt-3 text-sm px-3 py-1 rounded border hover:bg-gray-100";
+   compareButton.textContent=compareList.includes(code) ? "Comparing" :
+"+ Compare";
+ body.appendChild(compareButton);
     card.append(flag,body,favButton);
    return card;
 }
 
-export function renderCountries(container,countries){
+export function renderCountries(container,countries,compareList=[]){
     container.innerHTML="";
 
     const grid=document.createElement('div');
     grid.className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4";
     countries.forEach((country)=>{
-        grid.appendChild(createCard(country));
+        grid.appendChild(createCard(country,compareList));
     });
     container.appendChild(grid);
 }
@@ -173,4 +180,58 @@ export function renderDetail(container, country, allCountries) {
 
   wrapper.append(back, flag, title, official, info, map, bordersTitle, chips);
   container.appendChild(wrapper);
+}
+
+export function renderCompare(container,countries){
+    container.innerHTML="";
+
+    const wrapper=document.createElement("div");
+    wrapper.className="max-w-5xl mx-auto bg-white rounded-lg shadow p-6 overflow-x-auto";
+
+    const back=document.createElement("button");
+    back.dataset.action="back";
+    back.className="mb-4 text-blue-600 hover:underline";
+    back.textContent="<- Back to all countries";
+
+    const table=document.createElement("table");
+    table.className="w-full text-left border-collapse";
+
+    const rows=[
+        ["Flag", (c)=>c.flag.url_png],
+        ["Name", (c)=>c.names.common],
+        ["Capital", (c)=>(c.capitals || [])[0]?.name || "N/A"],
+        ["Region", (c)=>c.region],
+        ["Population", (c)=>(c.population || 0).toLocaleString()],
+        ["Area",(c)=>`${(c.area?.kilometers || 0).toLocaleString()} km²`],
+        ["Currency",(c)=>(c.currencies || []).map((cur)=>cur.name).join(",")||"N/A"],
+         ["Languages",(c)=>(c.languages || []).map((lang)=>lang.name).join(",")||"N/A"],
+
+    ];
+    rows.forEach(([label,getValue])=>{
+        const tr=document.createElement("tr");
+        tr.className="border-b";
+
+        const th=document.createElement("th");
+        th.className="p-3 font-semibold bg-gray-50 w-32";
+        th.textContent=label;
+        tr.appendChild(th);
+
+        countries.forEach((country)=>{
+            const td=document.createElement("td");
+            td.className="p-3";
+            if(label==="Flag"){
+                const img=document.createElement("img");
+                img.src=getValue(country);
+                img.alt=`Flag of ${country.names.common}`;
+                img.className="h-16";
+                td.appendChild(img);
+            }else{
+                td.textContent=getValue(country);
+            }
+            tr.appendChild(td);
+        });
+        table.appendChild(tr);
+    });
+    wrapper.append(back,table);
+    container.appendChild(wrapper);
 }
