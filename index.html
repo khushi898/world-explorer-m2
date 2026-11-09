@@ -11,27 +11,35 @@
         <h1 class="text-2xl font-bold">World Explorer</h1>
     </header>
 
-     <section class="p-4 flex flex-col sm:flex-row-gap-3">
-        <input id="search" type="text" placeholder="Search by country name..." class="flex-1 border rounded px-3 py-2 bg-white">
-        <select id="region" class="border rounded px-3 py-2 bg-white">
-            <option value="all">All Regions</option>
-            </select>
-        <select id="sort" class="border rounded px-3 py-2 bg-white">
-            <option value="name">Name (A-Z)</option>
-            <option value="population-desc">Population (High to Low)</option>
-            <option value="population-asc">Population (Low to High)</option>
-            <option value="area-desc">Area (Largest first)</option>
-        </select>
-        <label class="flex items-center gap-2 bg-white border rounded px-3 py-2">
-            <input id="fav-only" type="checkbox">
-            Favorites Only
-        </label>
-        <button id="compare-btn" class="bg-gray-800 text-white px-4 py-2 rounded disabled:opacity-40">
-            Compare (0)
-        </button>
-        <button id="refresh" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 active:bg-blue-800">Refresh</button>
+     <section class="p-4 flex flex-col md:flex-row md:flex-wrap md:items-center gap-3">
+    <input id="search" type="text" placeholder="Search by country name..."
+      aria-label="Search by country name"
+      class="flex-1 min-w-[200px] border rounded px-3 py-2 bg-white">
 
-      </section>
+    <select id="region" aria-label="Filter by region" class="border rounded px-3 py-2 bg-white">
+      <option value="all">All regions</option>
+    </select>
+
+    <select id="sort" aria-label="Sort countries" class="border rounded px-3 py-2 bg-white">
+      <option value="name">Name (A–Z)</option>
+      <option value="population-desc">Population (high → low)</option>
+      <option value="population-asc">Population (low → high)</option>
+      <option value="area-desc">Area (largest first)</option>
+    </select>
+
+    <label class="flex items-center gap-2 bg-white border rounded px-3 py-2">
+      <input id="fav-only" type="checkbox">
+      Favourites only
+    </label>
+
+    <button id="compare-btn" class="bg-gray-800 text-white px-4 py-2 rounded disabled:opacity-40">
+      Compare (0)
+    </button>
+
+    <button id="refresh" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 active:bg-blue-800">
+      Refresh
+    </button>
+  </section>
     <main id="app" class="p-4">
      
     </main>
