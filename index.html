@@ -43,6 +43,19 @@
     <main id="app" class="p-4">
      
     </main>
+    
+    <script>
+      if(location.protocol === 'file:'){
+        document.addEventListener('DOMContentLoaded',()=>{
+          const note=document.createElement('div');
+          note.className='m-4 rounded-lg bg-amber-100 p-4 text-amber-900';
+          note.innerHTML='This app uses javascript modules and must run on a server..'+
+          'Open the live site:<a class="underline" href="https://world-explorer-m2.vercel.app">world-explorer-m2.vercel.app</a>'+
+           'or open the folder in vs code and use Live Server.';
+          document.body.prepend(note);
+        }) ;
+      }
+      </script>
 <script type="module" src="js/app.js"></script>
     
 </body>
